@@ -58,6 +58,24 @@ Commands:
     log                Decode event log.
 ```
 
+### Docker Usage
+
+Just like the `ethabi` binary, it takes in the *arguments* specified above. You
+do not need to repeat the `ethabi` binary name itself. Just pass in the arugments.
+```
+docker run --rm ethabi-cli [encode|decode|-h] ...
+```
+
+e.g.
+```
+docker run --rm ethabi-cli encode params -v string 'Hello World!' -l
+```
+
+To build the image yourself, simply run:
+```
+./compile.sh && ./build.sh
+```
+
 ### Examples
 
 ```
