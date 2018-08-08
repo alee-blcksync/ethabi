@@ -1,0 +1,36 @@
+FROM rust:1.28
+
+LABEL maintainer="matr1xc0in"
+
+ARG ETHABI_UID
+
+# UID is the only thing that matters
+ENV SHELL=/bin/sh \
+    ETHABI_USER=ethabiuser \
+    ETHABI_UID=${ETHABI_UID} \
+    ETHABI_GID=7888
+ENV HOME=/home/$ETHABI_USER
+
+RUN groupadd $ETHABI_USER -g $ETHABI_GID && \
+    useradd -m -s /bin/bash -N -u $ETHABI_UID $ETHABI_USER && \
+    git clone --branch v6.0.0 --depth 1 https://github.com/matr1xc0in/ethabi.git $HOME/ethabi && \
+    mkdir -p $HOME/output
+
+COPY fix-permissions /usr/local/bin/fix-permissions
+COPY compile_ethabi.sh $HOME/compile_ethabi.sh
+
+RUN chmod 755 /usr/local/bin/fix-permissions ; \
+    chown -R $ETHABI_USER:$ETHABI_GID $HOME && \
+    chown -R $ETHABI_USER:$ETHABI_GID $HOME/output && \
+    chmod g+w /etc/passwd /etc/group && \
+    echo $ETHABI_UID && \
+    fix-permissions $HOME && \
+    fix-permissions $HOME/output
+
+WORKDIR $HOME
+
+USER $ETHABI_USER
+
+# https://github.com/rust-lang/crates.io-index/blob/master/et/ha/ethabi-cli
+# RUN cargo install --vers 5.0.1 ethabi-cli
+CMD ["./compile_ethabi.sh"]
